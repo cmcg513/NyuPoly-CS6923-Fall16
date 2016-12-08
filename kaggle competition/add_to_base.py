@@ -157,23 +157,32 @@ def main():
   keys = list(data.keys())
   keys.remove('RefId'); keys.remove('IsBadBuy')
   # import IPython; IPython.embed(); import sys; sys.exit()
+  # optkeys = ['PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost']
+  # optkeys = ['PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost', 'Nationality']
+  optkeys = ['PurchDate', 'VehYear', 'PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Nationality', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost']
 
   grouped_keys = ['Model','SubModel','VNST','PRIMEUNIT','AUCGUART','TopThreeAmericanName','Size','Nationality','WheelType','Transmission','Color','Trim','Make','Auction','PurchDate']
   # import IPython; IPython.embed(); import sys; sys.exit()
   for gkey in grouped_keys:
     data[gkey] = pd.Categorical.from_array(data[gkey]).codes
-  max_score = 0
-  max_keys = []
-  max_cfier = 0
+  max_keys = optkeys
+  max_cfier = 5
   j = 0
+  X = featurizer.create_features(data,max_keys,training=True)
+  y = data.IsBadBuy
+  model = train_model(X,y,max_cfier)
+  max_score = np.mean(cross_val_score(model, X, y, scoring='roc_auc'))
+  print("\nBase score: " + str(max_score)+"\n")
   for key in keys:
     print("\t"+str(j)+": "+str(max_score))
     j+=1
+    # if key in max_keys:
+    #   continue
     max_keys.append(key)
     X = featurizer.create_features(data,max_keys,training=True)
     y = data.IsBadBuy
     new_max = False
-    for i in range(1,6):
+    for i in range(5,6):
       model = train_model(X,y,i)
       score = np.mean(cross_val_score(model, X, y, scoring='roc_auc'))
       if score > max_score:
