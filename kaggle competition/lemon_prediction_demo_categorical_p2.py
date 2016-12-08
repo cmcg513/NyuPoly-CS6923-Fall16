@@ -121,11 +121,16 @@ def encode(data,key):
   return le.transform(data['Make'])
 
 def train_model(X, y):
-  #model = RidgeClassi
-  # model = LogisticRegression(C=10)
-  # model = DecisionTreeClassifier() 
-  # model = RandomForestClassifier()
-  model = GradientBoostingClassifier()
+  if cfier == 1:
+    model = RidgeClassifierCV()
+  else cfier == 2:
+    model = LogisticRegression(C=10)
+  else cfier == 3:
+    model = DecisionTreeClassifier()
+  else cfier == 4: 
+    model = RandomForestClassifier()
+  else:
+    model = GradientBoostingClassifier()
   model.fit(X, y)
   #print model.coef_
   return model
@@ -133,80 +138,56 @@ def train_model(X, y):
 def predict(model, y):
   return model.predict(y)
 
-def create_submission(model, transformer):
-  submission_test = pd.read_csv('inclass_test_small.csv')
-  predictions = pd.Series([x[1] for x in model.predict_proba(transformer.create_features(submission_test))])
+def create_submission(model, transformer,keys):
+  submission_test = pd.read_csv('inclass_test.csv')
+  grouped_keys = ['Model','SubModel','VNST','PRIMEUNIT','AUCGUART','TopThreeAmericanName','Size','Nationality','WheelType','Transmission','Color','Trim','Make','Auction','PurchDate']
+  # import IPython; IPython.embed(); import sys; sys.exit()
+  for gkey in grouped_keys:
+    submission_test[gkey] = pd.Categorical.from_array(submission_test[gkey]).codes
+  predictions = pd.Series([x[1] for x in model.predict_proba(transformer.create_features(submission_test,keys))])
 
   submission = pd.DataFrame({'RefId': submission_test.RefId, 'IsBadBuy': predictions})
   submission.sort_index(axis=1, inplace=True)
   submission.to_csv('submission.csv', index=False)
 
-
-
 def main():
-  data = pd.read_csv('inclass_training_small.csv')
+  data = pd.read_csv('inclass_training.csv')
   #print data
   featurizer = LemonCarFeaturizer()
-  dumdata = pd.get_dummies(data)
-  keys = list(dumdata.keys())
+  keys = list(data.keys())
   keys.remove('RefId'); keys.remove('IsBadBuy')
   # import IPython; IPython.embed(); import sys; sys.exit()
 
   grouped_keys = ['Model','SubModel','VNST','PRIMEUNIT','AUCGUART','TopThreeAmericanName','Size','Nationality','WheelType','Transmission','Color','Trim','Make','Auction','PurchDate']
-  grouped_keys_dict = dict()
-  for key in keys:
-    skey = key.split('_')
-    if skey[0] in grouped_keys:
-      if skey[0] not in grouped_keys_dict:
-        grouped_keys_dict[skey[0]] = []
-      grouped_keys_dict[skey[0]].append(key)
-  for gkey in grouped_keys:
-    for key in grouped_keys_dict[gkey]:
-      keys.remove(key)
-    keys.append(gkey)
   # import IPython; IPython.embed(); import sys; sys.exit()
-
+  for gkey in grouped_keys:
+    data[gkey] = pd.Categorical.from_array(data[gkey]).codes
   max_score = 0
-  max_keys = None
-  print("\n")
-  print("Feature # range: "+str(1)+" - "+str(len(keys)))
-  for i in range(1,len(keys)+1):
-    print(i)
-    j = 0
-    combs = [x for x in combinations(keys,i)]
-    print("\tComb number: " + str(len(combs))+'\n')
-    for subset in combs:
-      j += 1
-      # if j % 10 == 0:
-      print("\t"+str(j)+": "+str(max_score))
-      subset = list(subset)
-
-      for gkey in subset:
-        if gkey in grouped_keys:
-          subset.remove(gkey)
-          for key in grouped_keys_dict[gkey]:
-            subset.append(key)
-
-      # subset.append('RefId'); subset.append('IsBadBuy')
-      # tmp_data = dumdata[[subset]]
-      try:
-        print("\tMaking features...")
-        X = featurizer.create_features(dumdata,subset,training=True)
-      except KeyError:
-        import IPython; IPython.embed()
-      y = dumdata.IsBadBuy
-      print("\tTraining...")
+  max_keys = []
+  max_cfier = 0
+  j = 0
+  for key in keys:
+    print("\t"+str(j)+": "+str(max_score))
+    j+=1
+    max_keys.append(key)
+    X = featurizer.create_features(data,max_keys,training=True)
+    y = data.IsBadBuy
+    new_max = False
+    for i in range(1,6):
       model = train_model(X,y)
-      print("\tScoring...")
       score = np.mean(cross_val_score(model, X, y, scoring='roc_auc'))
       if score > max_score:
         max_score = score
-        max_keys = subset
+        max_cfier = i
+        new_max = True
+    if not new_max:
+      max_keys.remove(key)
   print("Best score: " + str(max_score))
+  print("Cfier #: "+str(max_cfier))
   print("Features: ")
   print(max_keys)
-  X = featurizer.create_features(dumdata,max_keys,training=True)
-  y = dumdata.IsBadBuy
+  X = featurizer.create_features(data,max_keys,training=True)
+  y = data.IsBadBuy
   model = train_model(X,y)
   # print ("Transforming dataset into features...")
   # X = featurizer.create_features(data, training=True)
@@ -219,7 +200,7 @@ def main():
   # print (np.mean(cross_val_score(model, X, y, scoring='roc_auc')))
 
   print ("Create predictions on submission set...")
-  create_submission(model, featurizer)
+  create_submission(model, featurizer,max_keys)
 
 
 if __name__ == '__main__':

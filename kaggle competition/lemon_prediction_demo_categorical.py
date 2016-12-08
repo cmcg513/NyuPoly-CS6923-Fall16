@@ -147,25 +147,14 @@ def main():
   data = pd.read_csv('inclass_training_small.csv')
   #print data
   featurizer = LemonCarFeaturizer()
-  dumdata = pd.get_dummies(data)
-  keys = list(dumdata.keys())
+  keys = list(data.keys())
   keys.remove('RefId'); keys.remove('IsBadBuy')
   # import IPython; IPython.embed(); import sys; sys.exit()
 
   grouped_keys = ['Model','SubModel','VNST','PRIMEUNIT','AUCGUART','TopThreeAmericanName','Size','Nationality','WheelType','Transmission','Color','Trim','Make','Auction','PurchDate']
-  grouped_keys_dict = dict()
-  for key in keys:
-    skey = key.split('_')
-    if skey[0] in grouped_keys:
-      if skey[0] not in grouped_keys_dict:
-        grouped_keys_dict[skey[0]] = []
-      grouped_keys_dict[skey[0]].append(key)
-  for gkey in grouped_keys:
-    for key in grouped_keys_dict[gkey]:
-      keys.remove(key)
-    keys.append(gkey)
   # import IPython; IPython.embed(); import sys; sys.exit()
-
+  for gkey in grouped_keys:
+    data[gkey] = pd.Categorical.from_array(data[gkey]).codes
   max_score = 0
   max_keys = None
   print("\n")
@@ -181,20 +170,14 @@ def main():
       print("\t"+str(j)+": "+str(max_score))
       subset = list(subset)
 
-      for gkey in subset:
-        if gkey in grouped_keys:
-          subset.remove(gkey)
-          for key in grouped_keys_dict[gkey]:
-            subset.append(key)
-
       # subset.append('RefId'); subset.append('IsBadBuy')
-      # tmp_data = dumdata[[subset]]
+      # tmp_data = data[[subset]]
       try:
         print("\tMaking features...")
-        X = featurizer.create_features(dumdata,subset,training=True)
+        X = featurizer.create_features(data,subset,training=True)
       except KeyError:
         import IPython; IPython.embed()
-      y = dumdata.IsBadBuy
+      y = data.IsBadBuy
       print("\tTraining...")
       model = train_model(X,y)
       print("\tScoring...")
@@ -205,8 +188,8 @@ def main():
   print("Best score: " + str(max_score))
   print("Features: ")
   print(max_keys)
-  X = featurizer.create_features(dumdata,max_keys,training=True)
-  y = dumdata.IsBadBuy
+  X = featurizer.create_features(data,max_keys,training=True)
+  y = data.IsBadBuy
   model = train_model(X,y)
   # print ("Transforming dataset into features...")
   # X = featurizer.create_features(data, training=True)
