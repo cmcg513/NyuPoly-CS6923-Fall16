@@ -162,8 +162,9 @@ def create_submission(model, transformer,keys):
 
 def main():
   data = pd.read_csv('inclass_training.csv')
+  # import IPython; IPython.embed(); import sys; sys.exit()
   data = add_fields(data)
-  #print data
+  #print data 
   featurizer = LemonCarFeaturizer()
   keys = list(data.keys())
   keys.remove('RefId'); keys.remove('IsBadBuy')
@@ -171,15 +172,16 @@ def main():
   # optkeys = ['PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost']
   # optkeys = ['PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost', 'Nationality']
   # optkeys = ['PurchDate', 'VehYear', 'PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Nationality', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost']
-  # optkeys = ['PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Size', 'MMRAcquisitionAuctionAveragePrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost', 'IsOnlineSale', 'AnnMileage']
-  optkeys = ['PurchDate', 'VehicleAge', 'VehBCost', 'PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Size', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionRetailAveragePrice', 'MMRAcquisitonRetailCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost', 'IsOnlineSale', 'AnnMileage']
+  # keys = ['Auction', 'VehicleAge', 'Model', 'SubModel', 'Transmission', 'WheelType', 'Nationality', 'TopThreeAmericanName', 'MMRAcquisitionAuctionCleanPrice', 'MMRAcquisitonRetailCleanPrice', 'MMRCurrentAuctionCleanPrice', 'MMRCurrentRetailCleanPrice', 'AUCGUART', 'VNZIP1', 'VehBCost', 'WarrantyCost', 'Trim', 'VehOdo', 'MMRAcquisitionRetailAveragePrice', 'IsOnlineSale', 'WheelTypeID', 'BYRNO', 'Size', 'PurchDate']
+  # keys = ['VehicleAge', 'SubModel', 'WheelType', 'TopThreeAmericanName', 'MMRAcquisitonRetailCleanPrice', 'MMRCurrentRetailCleanPrice', 'VNZIP1', 'WarrantyCost', 'VehOdo', 'IsOnlineSale', 'BYRNO', 'PurchDate', 'Model', 'MMRAcquisitionAuctionCleanPrice', 'AUCGUART', 'Trim', 'WheelTypeID', 'Auction', 'MMRCurrentAuctionCleanPrice', 'MMRAcquisitionRetailAveragePrice', 'Nationality', 'Size', 'VehBCost']
+  # keys = ['Auction', 'VehicleAge', 'Model', 'SubModel', 'Transmission', 'WheelType', 'Nationality', 'TopThreeAmericanName', 'MMRAcquisitionAuctionCleanPrice', 'MMRAcquisitonRetailCleanPrice', 'MMRCurrentAuctionCleanPrice', 'MMRCurrentRetailCleanPrice', 'AUCGUART', 'VNZIP1', 'VehBCost', 'WarrantyCost', 'AucAvgPrAgeRatio', 'RetAvgPrAgeRatio', 'TranSizePair', 'VehYear', 'Color', 'Size', 'MMRAcquisitionRetailAveragePrice', 'MMRCurrentRetailAveragePrice', 'VNST', 'AucClnPrAgeRatio', 'PurchDate', 'VehOdo', 'BYRNO', 'RetClnPrAgeRatio', 'MMRCurrentAuctionAveragePrice', 'Trim']
+  keys = ['VehicleAge', 'SubModel', 'WheelType', 'TopThreeAmericanName', 'MMRAcquisitonRetailCleanPrice', 'MMRCurrentRetailCleanPrice', 'VNZIP1', 'WarrantyCost', 'RetAvgPrAgeRatio', 'VehYear', 'Size', 'MMRCurrentRetailAveragePrice', 'AucClnPrAgeRatio', 'VehOdo', 'RetClnPrAgeRatio', 'Trim', 'Model', 'MMRAcquisitionAuctionCleanPrice', 'AUCGUART', 'AucAvgPrAgeRatio', 'Color', 'VNST', 'BYRNO', 'Auction', 'MMRCurrentAuctionCleanPrice', 'TranSizePair', 'PurchDate', 'Nationality', 'MMRAcquisitionRetailAveragePrice', 'VehBCost', 'MMRCurrentAuctionAveragePrice']
 
   grouped_keys = ['TranSizePair','Model','SubModel','VNST','PRIMEUNIT','AUCGUART','TopThreeAmericanName','Size','Nationality','WheelType','Transmission','Color','Trim','Make','Auction','PurchDate']
   # import IPython; IPython.embed(); import sys; sys.exit()
   for gkey in grouped_keys:
     data[gkey] = pd.Categorical.from_array(data[gkey]).codes
-  max_keys = optkeys
-  max_score = 0
+  max_keys = keys
   max_cfier = 5
   j = 0
   X = featurizer.create_features(data,max_keys,training=True)
@@ -192,7 +194,7 @@ def main():
     j+=1
     # if key in max_keys:
     #   continue
-    max_keys.append(key)
+    max_keys.remove(key)
     X = featurizer.create_features(data,max_keys,training=True)
     y = data.IsBadBuy
     new_max = False
@@ -204,7 +206,7 @@ def main():
         max_cfier = i
         new_max = True
     if not new_max:
-      max_keys.remove(key)
+      max_keys.append(key)
   print("Best score: " + str(max_score))
   print("Cfier #: "+str(max_cfier))
   print("Features: ")

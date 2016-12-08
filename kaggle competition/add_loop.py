@@ -46,6 +46,7 @@ from sklearn.preprocessing import Imputer
 from sklearn import preprocessing
 # import argparse
 from itertools import combinations 
+from random import shuffle
 
 class LemonCarFeaturizer():
   def __init__(self):
@@ -172,58 +173,54 @@ def main():
   # optkeys = ['PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost', 'Nationality']
   # optkeys = ['PurchDate', 'VehYear', 'PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Nationality', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost']
   # optkeys = ['PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Size', 'MMRAcquisitionAuctionAveragePrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost', 'IsOnlineSale', 'AnnMileage']
-  optkeys = ['PurchDate', 'VehicleAge', 'VehBCost', 'PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Size', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionRetailAveragePrice', 'MMRAcquisitonRetailCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost', 'IsOnlineSale', 'AnnMileage']
+  # optkeys = ['PurchDate', 'VehicleAge', 'VehBCost', 'PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Size', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionRetailAveragePrice', 'MMRAcquisitonRetailCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost', 'IsOnlineSale', 'AnnMileage']
 
   grouped_keys = ['TranSizePair','Model','SubModel','VNST','PRIMEUNIT','AUCGUART','TopThreeAmericanName','Size','Nationality','WheelType','Transmission','Color','Trim','Make','Auction','PurchDate']
   # import IPython; IPython.embed(); import sys; sys.exit()
   for gkey in grouped_keys:
     data[gkey] = pd.Categorical.from_array(data[gkey]).codes
-  max_keys = optkeys
+  max_keys = keys #optkeys
   max_score = 0
   max_cfier = 5
   j = 0
-  X = featurizer.create_features(data,max_keys,training=True)
-  y = data.IsBadBuy
-  model = train_model(X,y,max_cfier)
-  max_score = np.mean(cross_val_score(model, X, y, scoring='roc_auc'))
-  print("\nBase score: " + str(max_score)+"\n")
-  for key in keys:
-    print("\t"+str(j)+": "+str(max_score))
-    j+=1
-    # if key in max_keys:
-    #   continue
-    max_keys.append(key)
+  # X = featurizer.create_features(data,max_keys,training=True)
+  # y = data.IsBadBuy
+  # model = train_model(X,y,max_cfier)
+  # max_score = np.mean(cross_val_score(model, X, y, scoring='roc_auc'))
+  # print("\nBase score: " + str(max_score)+"\n")
+  improvement_made = True
+  while improvement_made:
+    shuffle(keys)
+    improvement_made = False
+    for key in keys:
+      print("\t"+str(j)+": "+str(max_score))
+      j+=1
+      if key in max_keys:
+        continue
+      max_keys.append(key)
+      X = featurizer.create_features(data,max_keys,training=True)
+      y = data.IsBadBuy
+      new_max = False
+      for i in range(5,6):
+        model = train_model(X,y,i)
+        score = np.mean(cross_val_score(model, X, y, scoring='roc_auc'))
+        if score > max_score:
+          improvement_made = True
+          max_score = score
+          max_cfier = i
+          new_max = True
+      if not new_max:
+        max_keys.remove(key)
+    print("Best score: " + str(max_score))
+    print("Cfier #: "+str(max_cfier))
+    print("Features: ")
+    print(max_keys)
     X = featurizer.create_features(data,max_keys,training=True)
     y = data.IsBadBuy
-    new_max = False
-    for i in range(5,6):
-      model = train_model(X,y,i)
-      score = np.mean(cross_val_score(model, X, y, scoring='roc_auc'))
-      if score > max_score:
-        max_score = score
-        max_cfier = i
-        new_max = True
-    if not new_max:
-      max_keys.remove(key)
-  print("Best score: " + str(max_score))
-  print("Cfier #: "+str(max_cfier))
-  print("Features: ")
-  print(max_keys)
-  X = featurizer.create_features(data,max_keys,training=True)
-  y = data.IsBadBuy
-  model = train_model(X,y,max_cfier)
-  # print ("Transforming dataset into features...")
-  # X = featurizer.create_features(data, training=True)
-  # y = data.IsBadBuy
+    model = train_model(X,y,max_cfier)
 
-  # print ("Training model...")
-  # model = train_model(X,y)
-
-  # print ("Cross validating...")
-  # print (np.mean(cross_val_score(model, X, y, scoring='roc_auc')))
-
-  print ("Create predictions on submission set...")
-  create_submission(model, featurizer,max_keys)
+    print ("Create predictions on submission set...")
+    create_submission(model, featurizer,max_keys)
 
 
 if __name__ == '__main__':
