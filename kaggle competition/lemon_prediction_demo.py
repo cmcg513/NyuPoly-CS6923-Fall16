@@ -37,12 +37,12 @@
 # WarrantyCost                            Warranty price (term=36month  and millage=36K) 
 
 
-
-
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LogisticRegression, RidgeClassifierCV
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.ensemble import VotingClassifier, RandomForestClassifier, GradientBoostingClassifier, GradientBoostingRegressor, AdaBoostClassifier, ExtraTreesRegressor, ExtraTreesClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.cross_validation import cross_val_score
 from sklearn.preprocessing import Imputer
@@ -95,19 +95,54 @@ class LemonCarFeaturizer():
     #       ]
     # #data ['']
     # data = dataset[ ['PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost'] ]
-    data = dataset[['PurchDate', 'VehYear', 'PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Nationality', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost']]
+    data = dataset[['PurchDate', 'PurchDate', 'VehYear', 'Trim', 'AUCGUART', 'PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Nationality', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost']]
     if training:
       data = self._fit_transform(data)
     else:
       data = self._transform(data)
     return data
 
-def train_model(X, y):
-  #model = RidgeClassi
-  # model = LogisticRegression(C=10)
-  #model = DecisionTreeClassifier() 
-  #model = RandomForestClassifier()
-  model = GradientBoostingClassifier()
+def train_model(X, y,cfier):
+  if cfier == 0:
+    print("Ridge")
+    model = RidgeClassifierCV()
+  elif cfier == 1:
+    print("LogReg")
+    model = LogisticRegression(C=10)
+  elif cfier == 2:
+    print("DecTree")
+    model = DecisionTreeClassifier()
+  elif cfier == 3: 
+    print("RandForest")
+    model = RandomForestClassifier()
+  elif cfier == 4:
+    print("GradBoostC")
+    model = GradientBoostingClassifier()
+  elif cfier == 5:
+    print('Ada')
+    model = AdaBoostClassifier()
+  elif cfier == 6:
+    print("GradientBoostingRegressor")
+    model = GradientBoostingRegressor()
+  elif cfier == 7:
+    print("ExtraTreesClassifier")
+    model = ExtraTreesClassifier()
+  elif cfier == 8:
+    print("ExtraTreesRegressor")
+    model = ExtraTreesRegressor()
+  elif cfier == 9:
+    print("KNeighborsClassifier")
+    model = KNeighborsClassifier(n_neighbors=3)
+  elif cfier == 10:
+    rdge = RidgeClassifierCV()
+    rfor = RandomForestClassifier()
+    grad = GradientBoostingClassifier()
+    adac = AdaBoostClassifier()
+    grdr = GradientBoostingRegressor()
+    model = VotingClassifier(estimators=[('gbc',grad),('abc',adac)],voting='soft',weights=[3,1])
+  elif cfier == 11:
+    print("SVC")
+    model = SVC()
   model.fit(X, y)
   #print model.coef_
   return model
@@ -134,14 +169,15 @@ def main():
   X = featurizer.create_features(data, training=True)
   y = data.IsBadBuy
 
+  # for i in range(0,11):
   print ("Training model...")
-  model = train_model(X,y)
+  model = train_model(X,y,10)
 
   print ("Cross validating...")
   print (np.mean(cross_val_score(model, X, y, scoring='roc_auc')))
 
-  print ("Create predictions on submission set...")
-  create_submission(model, featurizer)
+  # print ("Create predictions on submission set...")
+  # create_submission(model, featurizer)
 
 
 if __name__ == '__main__':
