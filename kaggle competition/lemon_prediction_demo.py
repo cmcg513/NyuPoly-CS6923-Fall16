@@ -76,17 +76,22 @@ class LemonCarFeaturizer():
     return dataset
 
   def create_features(self, dataset, training=False):
-    data = dataset[ [
-                  'MMRAcquisitonRetailCleanPrice',
-                  'MMRCurrentAuctionAveragePrice',
-                  'MMRCurrentAuctionCleanPrice',
-                  'MMRCurrentRetailAveragePrice',
-                  'VehYear',
-                  'VehOdo',
-                  #'KickDate',
-                  'MMRCurrentRetailCleanPrice']
-          ]
-    #data ['']
+    # data = dataset[ [
+    #               'MMRAcquisitonRetailCleanPrice',
+    #               'MMRCurrentAuctionAveragePrice',
+    #               'MMRCurrentAuctionCleanPrice',
+    #               'MMRCurrentRetailAveragePrice',
+    #               'VehYear',
+    #               'VehOdo',
+    #               #'KickDate',
+    #               'MMRCurrentRetailCleanPrice']
+    #       ]
+    # #data ['']
+    data = dataset[ ['PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost'] ]
+    grouped_keys = ['Model','SubModel','VNST','PRIMEUNIT','AUCGUART','TopThreeAmericanName','Size','Nationality','WheelType','Transmission','Color','Trim','Make','Auction','PurchDate']
+    for gkey in grouped_keys:
+      if gkey in data:
+        data[gkey] = pd.Categorical.from_array(data[gkey]).codes
     if training:
       data = self._fit_transform(data)
     else:
@@ -95,9 +100,10 @@ class LemonCarFeaturizer():
 
 def train_model(X, y):
   #model = RidgeClassi
-  model = LogisticRegression(C=10)
+  # model = LogisticRegression(C=10)
   #model = DecisionTreeClassifier() 
   #model = RandomForestClassifier()
+  model = GradientBoostingClassifier()
   model.fit(X, y)
   #print model.coef_
   return model
