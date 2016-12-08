@@ -76,6 +76,13 @@ class LemonCarFeaturizer():
     return dataset
 
   def create_features(self, dataset, training=False):
+    grouped_keys = ['Model','SubModel','VNST','PRIMEUNIT','AUCGUART','TopThreeAmericanName','Size','Nationality','WheelType','Transmission','Color','Trim','Make','Auction','PurchDate']
+    for gkey in grouped_keys:
+      if gkey in dataset:
+        try:
+          dataset[gkey] = pd.Categorical.from_array(dataset[gkey]).codes
+        except:
+          import IPython; IPython.embed()
     # data = dataset[ [
     #               'MMRAcquisitonRetailCleanPrice',
     #               'MMRCurrentAuctionAveragePrice',
@@ -87,11 +94,8 @@ class LemonCarFeaturizer():
     #               'MMRCurrentRetailCleanPrice']
     #       ]
     # #data ['']
-    data = dataset[ ['PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost'] ]
-    grouped_keys = ['Model','SubModel','VNST','PRIMEUNIT','AUCGUART','TopThreeAmericanName','Size','Nationality','WheelType','Transmission','Color','Trim','Make','Auction','PurchDate']
-    for gkey in grouped_keys:
-      if gkey in data:
-        data[gkey] = pd.Categorical.from_array(data[gkey]).codes
+    # data = dataset[ ['PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost'] ]
+    data = dataset[['PurchDate', 'VehYear', 'PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Nationality', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost']]
     if training:
       data = self._fit_transform(data)
     else:
