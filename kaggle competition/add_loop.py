@@ -146,6 +146,10 @@ def add_fields(data):
   data['RetAvgPrAgeRatio'] = data['MMRAcquisitionRetailAveragePrice']/data['VehicleAge']
   data['RetClnPrAgeRatio'] = data['MMRAcquisitonRetailCleanPrice']/data['VehicleAge']
   data['TranSizePair'] = data['Transmission']+" - "+data['Size']
+  data['PDiffAAP'] = data['VehBCost'] - data['MMRAcquisitionAuctionAveragePrice']
+  data['PDiffACP'] = data['VehBCost'] - data['MMRAcquisitionAuctionCleanPrice']
+  data['PDiffRAP'] = data['VehBCost'] - data['MMRAcquisitionRetailAveragePrice']
+  data['PDiffRCP'] = data['VehBCost'] - data['MMRAcquisitonRetailCleanPrice']
   return data
 
 def create_submission(model, transformer,keys):
@@ -179,7 +183,7 @@ def main():
   # import IPython; IPython.embed(); import sys; sys.exit()
   for gkey in grouped_keys:
     data[gkey] = pd.Categorical.from_array(data[gkey]).codes
-  max_keys = keys #optkeys
+  max_keys = [] #optkeys
   max_score = 0
   max_cfier = 5
   j = 0
@@ -192,8 +196,9 @@ def main():
   while improvement_made:
     shuffle(keys)
     improvement_made = False
+    print("# of Keys: "+str(len(keys)))
     for key in keys:
-      print("\t"+str(j)+": "+str(max_score))
+      # print("\t"+str(j)+": "+str(max_score))
       j+=1
       if key in max_keys:
         continue
@@ -209,12 +214,13 @@ def main():
           max_score = score
           max_cfier = i
           new_max = True
+          print("\t"+str(j)+": "+str(max_score)+": "+key)
       if not new_max:
         max_keys.remove(key)
     print("Best score: " + str(max_score))
     print("Cfier #: "+str(max_cfier))
     print("Features: ")
-    print(max_keys)
+    print(sorted(max_keys))
     X = featurizer.create_features(data,max_keys,training=True)
     y = data.IsBadBuy
     model = train_model(X,y,max_cfier)

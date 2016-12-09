@@ -167,9 +167,8 @@ def create_submission(model, transformer,keys):
 
 def main():
   data = pd.read_csv('inclass_training.csv')
-  # import IPython; IPython.embed(); import sys; sys.exit()
   data = add_fields(data)
-  #print data 
+  #print data
   featurizer = LemonCarFeaturizer()
   keys = list(data.keys())
   keys.remove('RefId'); keys.remove('IsBadBuy')
@@ -177,58 +176,74 @@ def main():
   # optkeys = ['PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost']
   # optkeys = ['PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost', 'Nationality']
   # optkeys = ['PurchDate', 'VehYear', 'PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Nationality', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost']
-  # keys = ['Auction', 'VehicleAge', 'Model', 'SubModel', 'Transmission', 'WheelType', 'Nationality', 'TopThreeAmericanName', 'MMRAcquisitionAuctionCleanPrice', 'MMRAcquisitonRetailCleanPrice', 'MMRCurrentAuctionCleanPrice', 'MMRCurrentRetailCleanPrice', 'AUCGUART', 'VNZIP1', 'VehBCost', 'WarrantyCost', 'Trim', 'VehOdo', 'MMRAcquisitionRetailAveragePrice', 'IsOnlineSale', 'WheelTypeID', 'BYRNO', 'Size', 'PurchDate']
-  # keys = ['VehicleAge', 'SubModel', 'WheelType', 'TopThreeAmericanName', 'MMRAcquisitonRetailCleanPrice', 'MMRCurrentRetailCleanPrice', 'VNZIP1', 'WarrantyCost', 'VehOdo', 'IsOnlineSale', 'BYRNO', 'PurchDate', 'Model', 'MMRAcquisitionAuctionCleanPrice', 'AUCGUART', 'Trim', 'WheelTypeID', 'Auction', 'MMRCurrentAuctionCleanPrice', 'MMRAcquisitionRetailAveragePrice', 'Nationality', 'Size', 'VehBCost']
-  # keys = ['Auction', 'VehicleAge', 'Model', 'SubModel', 'Transmission', 'WheelType', 'Nationality', 'TopThreeAmericanName', 'MMRAcquisitionAuctionCleanPrice', 'MMRAcquisitonRetailCleanPrice', 'MMRCurrentAuctionCleanPrice', 'MMRCurrentRetailCleanPrice', 'AUCGUART', 'VNZIP1', 'VehBCost', 'WarrantyCost', 'AucAvgPrAgeRatio', 'RetAvgPrAgeRatio', 'TranSizePair', 'VehYear', 'Color', 'Size', 'MMRAcquisitionRetailAveragePrice', 'MMRCurrentRetailAveragePrice', 'VNST', 'AucClnPrAgeRatio', 'PurchDate', 'VehOdo', 'BYRNO', 'RetClnPrAgeRatio', 'MMRCurrentAuctionAveragePrice', 'Trim']
-  # keys = ['VehicleAge', 'SubModel', 'WheelType', 'TopThreeAmericanName', 'MMRAcquisitonRetailCleanPrice', 'MMRCurrentRetailCleanPrice', 'VNZIP1', 'WarrantyCost', 'RetAvgPrAgeRatio', 'VehYear', 'Size', 'MMRCurrentRetailAveragePrice', 'AucClnPrAgeRatio', 'VehOdo', 'RetClnPrAgeRatio', 'Trim', 'Model', 'MMRAcquisitionAuctionCleanPrice', 'AUCGUART', 'AucAvgPrAgeRatio', 'Color', 'VNST', 'BYRNO', 'Auction', 'MMRCurrentAuctionCleanPrice', 'TranSizePair', 'PurchDate', 'Nationality', 'MMRAcquisitionRetailAveragePrice', 'VehBCost', 'MMRCurrentAuctionAveragePrice']
-
+  # optkeys = ['PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Size', 'MMRAcquisitionAuctionAveragePrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost', 'IsOnlineSale', 'AnnMileage']
+  # optkeys = ['PurchDate', 'VehicleAge', 'VehBCost', 'PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Size', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionRetailAveragePrice', 'MMRAcquisitonRetailCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost', 'IsOnlineSale', 'AnnMileage']
+  # optkeys = ['AUCGUART', 'AnnMileage', 'AucClnPrAgeRatio', 'Auction', 'BYRNO', 'Color', 'IsOnlineSale', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'MMRAcquisitionRetailAveragePrice', 'MMRAcquisitonRetailCleanPrice', 'MMRCurrentAuctionAveragePrice', 'MMRCurrentAuctionCleanPrice', 'MMRCurrentRetailAveragePrice', 'MMRCurrentRetailCleanPrice', 'Make', 'Nationality', 'PDiffACP', 'PDiffRAP', 'PDiffRCP', 'PRIMEUNIT', 'PurchDate', 'RetAvgPrAgeRatio', 'RetClnPrAgeRatio', 'SubModel', 'TopThreeAmericanName', 'TranSizePair', 'Trim', 'VNST', 'VNZIP1', 'VehBCost', 'VehOdo', 'VehYear', 'VehicleAge', 'WarrantyCost', 'WheelType']
+  optkeys = ['AUCGUART', 'AnnMileage', 'AucAvgPrAgeRatio', 'AucClnPrAgeRatio', 'BYRNO', 'Color', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'MMRAcquisitionRetailAveragePrice', 'MMRCurrentRetailAveragePrice', 'Make', 'Model', 'Nationality', 'PDiffAAP', 'PDiffACP', 'PDiffRAP', 'PDiffRCP', 'PRIMEUNIT', 'RetAvgPrAgeRatio', 'RetClnPrAgeRatio', 'SubModel', 'TopThreeAmericanName', 'TranSizePair', 'Transmission', 'Trim', 'VehBCost', 'VehOdo', 'VehicleAge', 'WheelTypeID']
   grouped_keys = ['TranSizePair','Model','SubModel','VNST','PRIMEUNIT','AUCGUART','TopThreeAmericanName','Size','Nationality','WheelType','Transmission','Color','Trim','Make','Auction','PurchDate']
+  rem_keys = ['AucAvgPrAgeRatio', 'PDiffAAP', 'Transmission']
+ #  add_keys = ['MMRCurrentAuctionCleanPrice',
+ # 'WheelType',
+ # 'MMRCurrentRetailCleanPrice',
+ # 'IsOnlineSale',
+ # 'Size',
+ # 'VehYear',
+ # 'MMRAcquisitonRetailCleanPrice',
+ # 'VNZIP1',
+ # 'PurchDate',
+ # 'WarrantyCost',
+ # 'Auction',
+ # 'MMRCurrentAuctionAveragePrice',
+ # 'VNST']
+  # add_keys = ['WheelType','MMRAcquisitonRetailCleanPrice','MMRCurrentRetailCleanPrice','Size','IsOnlineSale','MMRCurrentAuctionAveragePrice','WarrantyCost','MMRCurrentAuctionCleanPrice','VehYear']
+  add_keys = ['MMRCurrentAuctionCleanPrice', 'Size', 'VehYear']
+  for key in rem_keys:
+    optkeys.remove(key)
   # import IPython; IPython.embed(); import sys; sys.exit()
   for gkey in grouped_keys:
     data[gkey] = pd.Categorical.from_array(data[gkey]).codes
-  max_keys = keys
+  max_keys = optkeys
+  max_score = 0
   max_cfier = 5
+  best_keys_added = None
+  # best_add = None
   j = 0
   X = featurizer.create_features(data,max_keys,training=True)
   y = data.IsBadBuy
   model = train_model(X,y,max_cfier)
   max_score = np.mean(cross_val_score(model, X, y, scoring='roc_auc'))
   print("\nBase score: " + str(max_score)+"\n")
-  improvement_made = True
-  while improvement_made:
-    shuffle(keys)
-    improvement_made = False
-    print("# of Keys: "+str(len(keys)))
-    for key in keys:
-      # print("\t"+str(j)+": "+str(max_score))
+  for k in range(1,3+1):
+    for comb in combinations(add_keys,k):
+      comb = list(comb)
+    # for key in add_keys:
       j+=1
-      if key not in max_keys:
-        continue
-      max_keys.remove(key)
-      X = featurizer.create_features(data,max_keys,training=True)
+      tmp_keys = max_keys.copy()
+      tmp_keys.append(key)
+      X = featurizer.create_features(data,tmp_keys,training=True)
       y = data.IsBadBuy
-      new_max = False
-      for i in range(5,6):
-        model = train_model(X,y,i)
-        score = np.mean(cross_val_score(model, X, y, scoring='roc_auc'))
-        if score > max_score:
-          max_score = score
-          max_cfier = i
-          new_max = True
-          improvement_made = True
-          print("\t"+str(j)+": "+str(max_score)+": "+key)
-      if not new_max:
-        max_keys.append(key)
-    print("Best score: " + str(max_score))
-    print("Cfier #: "+str(max_cfier))
-    print("Features: ")
-    print(sorted(max_keys))
-    X = featurizer.create_features(data,max_keys,training=True)
-    y = data.IsBadBuy
-    model = train_model(X,y,max_cfier)
+      model = train_model(X,y,5)
+      score = np.mean(cross_val_score(model, X, y, scoring='roc_auc'))
+      print("\t"+str(j)+": max:"+str(max_score)+" curr: "+str(score)+" : "+str(comb))
+      if score > max_score:
+        max_score = score
+        # best_add = key
+        best_keys_added = comb
+        # print("\t"+str(j)+": "+str(max_score)+": "+str(comb))
+  print("Best score: " + str(max_score))
+  print("Cfier #: "+str(max_cfier))
+  # print("Best add: "+key)
+  print("Features added: ")
+  if best_keys_added is not None:
+    print(sorted(best_keys_added))
+  else:
+    print("None")
+  X = featurizer.create_features(data,max_keys,training=True)
+  y = data.IsBadBuy
+  model = train_model(X,y,max_cfier)
 
-    print ("Create predictions on submission set...")
-    create_submission(model, featurizer,max_keys)
+  print ("Create predictions on submission set...")
+  create_submission(model, featurizer,max_keys)
 
 
 if __name__ == '__main__':
