@@ -76,7 +76,7 @@ class LemonCarFeaturizer():
     return dataset
 
   def create_features(self, dataset, training=False):
-    grouped_keys = ['Model','SubModel','VNST','PRIMEUNIT','AUCGUART','TopThreeAmericanName','Size','Nationality','WheelType','Transmission','Color','Trim','Make','Auction','PurchDate']
+    grouped_keys = ['TranSizePair','Model','SubModel','VNST','PRIMEUNIT','AUCGUART','TopThreeAmericanName','Size','Nationality','WheelType','Transmission','Color','Trim','Make','Auction','PurchDate']
     for gkey in grouped_keys:
       if gkey in dataset:
         try:
@@ -95,7 +95,8 @@ class LemonCarFeaturizer():
     #       ]
     # #data ['']
     # data = dataset[ ['PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost'] ]
-    data = dataset[['PurchDate', 'PurchDate', 'VehYear', 'Trim', 'AUCGUART', 'PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Nationality', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost']]
+    # data = dataset[['PurchDate', 'PurchDate', 'VehYear', 'Trim', 'AUCGUART', 'PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Nationality', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost']]
+    data = dataset[['AUCGUART','AnnMileage','AucClnPrAgeRatio','BYRNO','Color','MMRAcquisitionAuctionAveragePrice','MMRAcquisitionAuctionCleanPrice','MMRAcquisitionRetailAveragePrice','MMRCurrentRetailAveragePrice','Make','Model','Nationality','PDiffACP','PDiffRAP','PDiffRCP','PRIMEUNIT','RetAvgPrAgeRatio','RetClnPrAgeRatio','SubModel','TopThreeAmericanName','TranSizePair','Trim','VehBCost','VehOdo','VehicleAge','WheelTypeID','MMRCurrentAuctionCleanPrice','Size','VehYear']]
     if training:
       data = self._fit_transform(data)
     else:
@@ -104,45 +105,50 @@ class LemonCarFeaturizer():
 
 def train_model(X, y,cfier):
   if cfier == 0:
-    print("Ridge")
+    print("\tRidge")
     model = RidgeClassifierCV()
   elif cfier == 1:
-    print("LogReg")
+    print("\tLogReg")
     model = LogisticRegression(C=10)
   elif cfier == 2:
-    print("DecTree")
+    print("\tDecTree")
     model = DecisionTreeClassifier()
   elif cfier == 3: 
-    print("RandForest")
+    print("\tRandForest")
     model = RandomForestClassifier()
   elif cfier == 4:
-    print("GradBoostC")
+    print("\tGradBoostC")
     model = GradientBoostingClassifier()
   elif cfier == 5:
-    print('Ada')
+    print('\tAda')
     model = AdaBoostClassifier()
   elif cfier == 6:
-    print("GradientBoostingRegressor")
+    print("\tGradientBoostingRegressor")
     model = GradientBoostingRegressor()
   elif cfier == 7:
-    print("ExtraTreesClassifier")
+    print("\tExtraTreesClassifier")
     model = ExtraTreesClassifier()
   elif cfier == 8:
-    print("ExtraTreesRegressor")
+    print("\tExtraTreesRegressor")
     model = ExtraTreesRegressor()
   elif cfier == 9:
-    print("KNeighborsClassifier")
+    print("\tKNeighborsClassifier - 5")
     model = KNeighborsClassifier(n_neighbors=3)
   elif cfier == 10:
-    rdge = RidgeClassifierCV()
+    print("\tSVC")
+    model = SVC()
+  elif cfier == 11:
+    logr = LogisticRegression(C=10)
+    # rdge = RidgeClassifierCV()
     rfor = RandomForestClassifier()
     grad = GradientBoostingClassifier()
     adac = AdaBoostClassifier()
-    grdr = GradientBoostingRegressor()
-    model = VotingClassifier(estimators=[('gbc',grad),('abc',adac)],voting='soft',weights=[3,1])
-  elif cfier == 11:
-    print("SVC")
-    model = SVC()
+    etcl = ExtraTreesClassifier()
+    dect = DecisionTreeClassifier()
+    # grdr = GradientBoostingRegressor()
+    # etrg = ExtraTreesRegressor()
+    # kngh = KNeighborsClassifier(n_neighbors=5)
+    model = VotingClassifier(estimators=[('lr',logr),('rfc',rfor),('gbc',grad),('abc',adac),('etc',etcl),('dtc',dect)],voting='soft',weights=[1,1,1,1,1,1])
   model.fit(X, y)
   #print model.coef_
   return model
@@ -158,10 +164,22 @@ def create_submission(model, transformer):
   submission.sort_index(axis=1, inplace=True)
   submission.to_csv('submission.csv', index=False)
 
-
+def add_fields(data):
+  data['AnnMileage'] = data['VehOdo']/data['VehicleAge']
+  data['AucAvgPrAgeRatio'] = data['MMRAcquisitionAuctionAveragePrice']/data['VehicleAge']
+  data['AucClnPrAgeRatio'] = data['MMRAcquisitionAuctionCleanPrice']/data['VehicleAge']
+  data['RetAvgPrAgeRatio'] = data['MMRAcquisitionRetailAveragePrice']/data['VehicleAge']
+  data['RetClnPrAgeRatio'] = data['MMRAcquisitonRetailCleanPrice']/data['VehicleAge']
+  data['TranSizePair'] = data['Transmission']+" - "+data['Size']
+  data['PDiffAAP'] = data['VehBCost'] - data['MMRAcquisitionAuctionAveragePrice']
+  data['PDiffACP'] = data['VehBCost'] - data['MMRAcquisitionAuctionCleanPrice']
+  data['PDiffRAP'] = data['VehBCost'] - data['MMRAcquisitionRetailAveragePrice']
+  data['PDiffRCP'] = data['VehBCost'] - data['MMRAcquisitonRetailCleanPrice']
+  return data
 
 def main():
   data = pd.read_csv('inclass_training.csv')
+  data = add_fields(data)
   #print data
   featurizer = LemonCarFeaturizer()
   
@@ -169,12 +187,12 @@ def main():
   X = featurizer.create_features(data, training=True)
   y = data.IsBadBuy
 
-  # for i in range(0,11):
-  print ("Training model...")
-  model = train_model(X,y,10)
+  for i in range(11,12):
+    print ("\tTraining model...")
+    model = train_model(X,y,i)
 
-  print ("Cross validating...")
-  print (np.mean(cross_val_score(model, X, y, scoring='roc_auc')))
+    print ("\tCross validating...")
+    print ("\t"+str(np.mean(cross_val_score(model, X, y, scoring='roc_auc'))))
 
   # print ("Create predictions on submission set...")
   # create_submission(model, featurizer)
