@@ -1,0 +1,112 @@
+add 0.760980226837
+['AnnMileage', 'AucAvgPrAgeRatio', 'BYRNO', 'Color', 'IsOnlineSale', 'MMRAcquisitionAuctionCleanPrice', 'MMRAcquisitonRetailCleanPrice', 'MMRCurrentAuctionAveragePrice', 'MMRCurrentAuctionCleanPrice', 'MMRCurrentRetailAveragePrice', 'MMRCurrentRetailCleanPrice', 'Model', 'Nationality', 'PRIMEUNIT', 'PurchDate', 'RetAvgPrAgeRatio', 'Size', 'SubModel', 'TopThreeAmericanName', 'TranSizePair', 'Transmission', 'Trim', 'VehBCost', 'VehOdo', 'VehYear', 'VehicleAge', 'WarrantyCost', 'WheelType', 'WheelTypeID']
+
+add 2 0.760980871282
+['AUCGUART', 'AnnMileage', 'AucAvgPrAgeRatio', 'AucClnPrAgeRatio', 'BYRNO', 'Color', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'MMRAcquisitionRetailAveragePrice', 'MMRCurrentRetailAveragePrice', 'Make', 'Model', 'Nationality', 'PDiffAAP', 'PDiffACP', 'PDiffRAP', 'PDiffRCP', 'PRIMEUNIT', 'RetAvgPrAgeRatio', 'RetClnPrAgeRatio', 'SubModel', 'TopThreeAmericanName', 'TranSizePair', 'Transmission', 'Trim', 'VehBCost', 'VehOdo', 'VehicleAge', 'WheelTypeID']
+
+remove 0.758793787639
+['AUCGUART', 'AnnMileage', 'AucClnPrAgeRatio', 'Auction', 'BYRNO', 'Color', 'IsOnlineSale', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'MMRAcquisitionRetailAveragePrice', 'MMRAcquisitonRetailCleanPrice', 'MMRCurrentAuctionAveragePrice', 'MMRCurrentAuctionCleanPrice', 'MMRCurrentRetailAveragePrice', 'MMRCurrentRetailCleanPrice', 'Make', 'Nationality', 'PDiffACP', 'PDiffRAP', 'PDiffRCP', 'PRIMEUNIT', 'PurchDate', 'RetAvgPrAgeRatio', 'RetClnPrAgeRatio', 'SubModel', 'TopThreeAmericanName', 'TranSizePair', 'Trim', 'VNST', 'VNZIP1', 'VehBCost', 'VehOdo', 'VehYear', 'VehicleAge', 'WarrantyCost', 'WheelType']
+
+In a1, removed from r
+['Size', 'Model', 'WheelTypeID', 'AucAvgPrAgeRatio', 'Transmission']
+
+In a2, removed from r
+['WheelTypeID', 'Model', 'AucAvgPrAgeRatio', 'PDiffAAP', 'Transmission']
+
+In r, not a1
+['PDiffACP',
+ 'AucClnPrAgeRatio',
+ 'PDiffRAP',
+ 'AUCGUART',
+ 'MMRAcquisitionAuctionAveragePrice',
+ 'VNZIP1',
+ 'MMRAcquisitionRetailAveragePrice',
+ 'VNST',
+ 'RetClnPrAgeRatio',
+ 'Auction',
+ 'PDiffRCP',
+ 'Make']
+
+ In r, not a2
+ ['MMRAcquisitonRetailCleanPrice',
+ 'MMRCurrentAuctionCleanPrice',
+ 'VNZIP1',
+ 'WheelType',
+ 'MMRCurrentRetailCleanPrice',
+ 'IsOnlineSale',
+ 'PurchDate',
+ 'WarrantyCost',
+ 'Auction',
+ 'VehYear',
+ 'MMRCurrentAuctionAveragePrice',
+ 'VNST']
+
+In a1, not a2
+['MMRAcquisitonRetailCleanPrice',
+ 'MMRCurrentAuctionCleanPrice',
+ 'WheelType',
+ 'MMRCurrentRetailCleanPrice',
+ 'IsOnlineSale',
+ 'PurchDate',
+ 'WarrantyCost',
+ 'Size',
+ 'VehYear',
+ 'MMRCurrentAuctionAveragePrice']
+
+In a2, not a1
+['PDiffACP',
+ 'AucClnPrAgeRatio',
+ 'PDiffRAP',
+ 'AUCGUART',
+ 'MMRAcquisitionAuctionAveragePrice',
+ 'MMRAcquisitionRetailAveragePrice',
+ 'PDiffAAP',
+ 'RetClnPrAgeRatio',
+ 'PDiffRCP',
+ 'Make']
+
+Not in a2
+['MMRCurrentAuctionCleanPrice',
+ 'WheelType',
+ 'MMRCurrentRetailCleanPrice',
+ 'IsOnlineSale',
+ 'Size',
+ 'VehYear',
+ 'MMRAcquisitonRetailCleanPrice',
+ 'VNZIP1',
+ 'PurchDate',
+ 'WarrantyCost',
+ 'Auction',
+ 'MMRCurrentAuctionAveragePrice',
+ 'VNST']
+
+best?
+['AUCGUART',
+ 'AnnMileage',
+ 'AucClnPrAgeRatio',
+ 'BYRNO',
+ 'Color',
+ 'MMRAcquisitionAuctionAveragePrice',
+ 'MMRAcquisitionAuctionCleanPrice',
+ 'MMRAcquisitionRetailAveragePrice',
+ 'MMRCurrentRetailAveragePrice',
+ 'Make',
+ 'Model',
+ 'Nationality',
+ 'PDiffACP',
+ 'PDiffRAP',
+ 'PDiffRCP',
+ 'PRIMEUNIT',
+ 'RetAvgPrAgeRatio',
+ 'RetClnPrAgeRatio',
+ 'SubModel',
+ 'TopThreeAmericanName',
+ 'TranSizePair',
+ 'Trim',
+ 'VehBCost',
+ 'VehOdo',
+ 'VehicleAge',
+ 'WheelTypeID',
+ 'MMRCurrentAuctionCleanPrice',
+ 'Size',
+ 'VehYear']

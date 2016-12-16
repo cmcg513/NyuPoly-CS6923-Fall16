@@ -96,7 +96,36 @@ class LemonCarFeaturizer():
     # #data ['']
     # data = dataset[ ['PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost'] ]
     # data = dataset[['PurchDate', 'PurchDate', 'VehYear', 'Trim', 'AUCGUART', 'PurchDate', 'VehYear', 'VehicleAge', 'Make', 'Model', 'Trim', 'SubModel', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Nationality', 'Size', 'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VehBCost']]
-    data = dataset[['AUCGUART','AnnMileage','AucClnPrAgeRatio','BYRNO','Color','MMRAcquisitionAuctionAveragePrice','MMRAcquisitionAuctionCleanPrice','MMRAcquisitionRetailAveragePrice','MMRCurrentRetailAveragePrice','Make','Model','Nationality','PDiffACP','PDiffRAP','PDiffRCP','PRIMEUNIT','RetAvgPrAgeRatio','RetClnPrAgeRatio','SubModel','TopThreeAmericanName','TranSizePair','Trim','VehBCost','VehOdo','VehicleAge','WheelTypeID','MMRCurrentAuctionCleanPrice','Size','VehYear']]
+    data = dataset[[
+    'AUCGUART',
+    'AnnMileage',
+    'AucClnPrAgeRatio',
+    'BYRNO',
+    'Color',
+    'MMRAcquisitionAuctionAveragePrice',
+    'MMRAcquisitionAuctionCleanPrice',
+    'MMRAcquisitionRetailAveragePrice',
+    'MMRCurrentRetailAveragePrice',
+    'Make',
+    'Model',
+    'Nationality',
+    'PDiffACP',
+    'PDiffRAP',
+    'PDiffRCP',
+    'PRIMEUNIT',
+    'RetAvgPrAgeRatio',
+    'RetClnPrAgeRatio',
+    'SubModel',
+    'TopThreeAmericanName',
+    'TranSizePair',
+    'Trim',
+    'VehBCost',
+    'VehOdo',
+    'VehicleAge',
+    'WheelTypeID',
+    'MMRCurrentAuctionCleanPrice',
+    'Size',
+    'VehYear']]
     if training:
       data = self._fit_transform(data)
     else:
@@ -118,7 +147,7 @@ def train_model(X, y,cfier):
     model = RandomForestClassifier()
   elif cfier == 4:
     print("\tGradBoostC")
-    model = GradientBoostingClassifier()
+    model = GradientBoostingClassifier(n_estimators=175, learning_rate=0.085, max_depth=3, random_state=0)
   elif cfier == 5:
     print('\tAda')
     model = AdaBoostClassifier()
@@ -148,7 +177,7 @@ def train_model(X, y,cfier):
     # grdr = GradientBoostingRegressor()
     # etrg = ExtraTreesRegressor()
     # kngh = KNeighborsClassifier(n_neighbors=5)
-    model = VotingClassifier(estimators=[('lr',logr),('rfc',rfor),('gbc',grad),('abc',adac),('etc',etcl),('dtc',dect)],voting='soft',weights=[1,1,1,1,1,1])
+    model = VotingClassifier(estimators=[('lr',logr),('rfc',rfor),('gbc',grad),('abc',adac),('etc',etcl),('dtc',dect)],voting='soft',weights=[5.02,5.44,6,5.96,5.36,4.68])
   model.fit(X, y)
   #print model.coef_
   return model
@@ -158,6 +187,14 @@ def predict(model, y):
 
 def create_submission(model, transformer):
   submission_test = pd.read_csv('inclass_test.csv')
+  submission_test = add_fields(submission_test)
+  grouped_keys = ['TranSizePair','Model','SubModel','VNST','PRIMEUNIT','AUCGUART','TopThreeAmericanName','Size','Nationality','WheelType','Transmission','Color','Trim','Make','Auction','PurchDate']
+  for gkey in grouped_keys:
+    if gkey in submission_test:
+      try:
+        submission_test[gkey] = pd.Categorical.from_array(submission_test[gkey]).codes
+      except:
+        import IPython; IPython.embed()
   predictions = pd.Series([x[1] for x in model.predict_proba(transformer.create_features(submission_test))])
 
   submission = pd.DataFrame({'RefId': submission_test.RefId, 'IsBadBuy': predictions})
@@ -187,15 +224,15 @@ def main():
   X = featurizer.create_features(data, training=True)
   y = data.IsBadBuy
 
-  for i in range(11,12):
+  for i in range(4,5):
     print ("\tTraining model...")
     model = train_model(X,y,i)
 
     print ("\tCross validating...")
     print ("\t"+str(np.mean(cross_val_score(model, X, y, scoring='roc_auc'))))
 
-  # print ("Create predictions on submission set...")
-  # create_submission(model, featurizer)
+  print ("Create predictions on submission set...")
+  create_submission(model, featurizer)
 
 
 if __name__ == '__main__':
